@@ -14,7 +14,519 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      appointments: {
+        Row: {
+          appointment_date: string
+          appointment_id: string
+          appointment_time: string
+          complaint: string | null
+          created_at: string
+          department: string
+          doctor_id: string
+          id: string
+          notes: string | null
+          patient_id: string
+          queue_number: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          appointment_date: string
+          appointment_id: string
+          appointment_time: string
+          complaint?: string | null
+          created_at?: string
+          department: string
+          doctor_id: string
+          id?: string
+          notes?: string | null
+          patient_id: string
+          queue_number?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          appointment_date?: string
+          appointment_id?: string
+          appointment_time?: string
+          complaint?: string | null
+          created_at?: string
+          department?: string
+          doctor_id?: string
+          id?: string
+          notes?: string | null
+          patient_id?: string
+          queue_number?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "appointments_doctor_id_fkey"
+            columns: ["doctor_id"]
+            isOneToOne: false
+            referencedRelation: "doctors"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "appointments_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      beds: {
+        Row: {
+          bed_number: number
+          created_at: string
+          id: string
+          patient_id: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          bed_number: number
+          created_at?: string
+          id?: string
+          patient_id?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          bed_number?: number
+          created_at?: string
+          id?: string
+          patient_id?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "beds_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      doctors: {
+        Row: {
+          active: boolean | null
+          created_at: string
+          id: string
+          name: string
+          phone: string | null
+          schedule: Json | null
+          specialization: string
+        }
+        Insert: {
+          active?: boolean | null
+          created_at?: string
+          id?: string
+          name: string
+          phone?: string | null
+          schedule?: Json | null
+          specialization: string
+        }
+        Update: {
+          active?: boolean | null
+          created_at?: string
+          id?: string
+          name?: string
+          phone?: string | null
+          schedule?: Json | null
+          specialization?: string
+        }
+        Relationships: []
+      }
+      igd_cases: {
+        Row: {
+          admission_time: string
+          bed_id: string | null
+          case_id: string
+          complaint: string
+          created_at: string
+          discharge_time: string | null
+          doctor_id: string | null
+          id: string
+          notes: string | null
+          patient_id: string
+          status: string
+          triage: string
+          updated_at: string
+        }
+        Insert: {
+          admission_time?: string
+          bed_id?: string | null
+          case_id: string
+          complaint: string
+          created_at?: string
+          discharge_time?: string | null
+          doctor_id?: string | null
+          id?: string
+          notes?: string | null
+          patient_id: string
+          status?: string
+          triage: string
+          updated_at?: string
+        }
+        Update: {
+          admission_time?: string
+          bed_id?: string | null
+          case_id?: string
+          complaint?: string
+          created_at?: string
+          discharge_time?: string | null
+          doctor_id?: string | null
+          id?: string
+          notes?: string | null
+          patient_id?: string
+          status?: string
+          triage?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "igd_cases_bed_id_fkey"
+            columns: ["bed_id"]
+            isOneToOne: false
+            referencedRelation: "beds"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "igd_cases_doctor_id_fkey"
+            columns: ["doctor_id"]
+            isOneToOne: false
+            referencedRelation: "doctors"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "igd_cases_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lab_results: {
+        Row: {
+          created_at: string
+          id: string
+          parameter: string
+          reference_range: string | null
+          status: string
+          test_id: string
+          unit: string | null
+          value: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          parameter: string
+          reference_range?: string | null
+          status?: string
+          test_id: string
+          unit?: string | null
+          value?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          parameter?: string
+          reference_range?: string | null
+          status?: string
+          test_id?: string
+          unit?: string | null
+          value?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lab_results_test_id_fkey"
+            columns: ["test_id"]
+            isOneToOne: false
+            referencedRelation: "lab_tests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lab_tests: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          doctor_id: string | null
+          id: string
+          notes: string | null
+          patient_id: string
+          priority: string
+          requested_date: string
+          sample_collected_at: string | null
+          status: string
+          test_id: string
+          test_name: string
+          test_type: string
+          updated_at: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          doctor_id?: string | null
+          id?: string
+          notes?: string | null
+          patient_id: string
+          priority?: string
+          requested_date?: string
+          sample_collected_at?: string | null
+          status?: string
+          test_id: string
+          test_name: string
+          test_type: string
+          updated_at?: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          doctor_id?: string | null
+          id?: string
+          notes?: string | null
+          patient_id?: string
+          priority?: string
+          requested_date?: string
+          sample_collected_at?: string | null
+          status?: string
+          test_id?: string
+          test_name?: string
+          test_type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lab_tests_doctor_id_fkey"
+            columns: ["doctor_id"]
+            isOneToOne: false
+            referencedRelation: "doctors"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lab_tests_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      medical_records: {
+        Row: {
+          appointment_id: string | null
+          created_at: string
+          diagnosis: string | null
+          doctor_id: string
+          id: string
+          igd_case_id: string | null
+          notes: string | null
+          patient_id: string
+          prescription: string | null
+          treatment: string | null
+          visit_date: string
+        }
+        Insert: {
+          appointment_id?: string | null
+          created_at?: string
+          diagnosis?: string | null
+          doctor_id: string
+          id?: string
+          igd_case_id?: string | null
+          notes?: string | null
+          patient_id: string
+          prescription?: string | null
+          treatment?: string | null
+          visit_date?: string
+        }
+        Update: {
+          appointment_id?: string | null
+          created_at?: string
+          diagnosis?: string | null
+          doctor_id?: string
+          id?: string
+          igd_case_id?: string | null
+          notes?: string | null
+          patient_id?: string
+          prescription?: string | null
+          treatment?: string | null
+          visit_date?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "medical_records_appointment_id_fkey"
+            columns: ["appointment_id"]
+            isOneToOne: false
+            referencedRelation: "appointments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "medical_records_doctor_id_fkey"
+            columns: ["doctor_id"]
+            isOneToOne: false
+            referencedRelation: "doctors"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "medical_records_igd_case_id_fkey"
+            columns: ["igd_case_id"]
+            isOneToOne: false
+            referencedRelation: "igd_cases"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "medical_records_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      patients: {
+        Row: {
+          address: string | null
+          created_at: string
+          date_of_birth: string
+          emergency_contact: string | null
+          gender: string
+          id: string
+          name: string
+          patient_id: string
+          phone: string | null
+          updated_at: string
+        }
+        Insert: {
+          address?: string | null
+          created_at?: string
+          date_of_birth: string
+          emergency_contact?: string | null
+          gender: string
+          id?: string
+          name: string
+          patient_id: string
+          phone?: string | null
+          updated_at?: string
+        }
+        Update: {
+          address?: string | null
+          created_at?: string
+          date_of_birth?: string
+          emergency_contact?: string | null
+          gender?: string
+          id?: string
+          name?: string
+          patient_id?: string
+          phone?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      rikkes_examinations: {
+        Row: {
+          created_at: string
+          examination_date: string
+          examination_name: string
+          examination_type: string
+          examiner: string | null
+          id: string
+          notes: string | null
+          participant_id: string
+          result: string | null
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          examination_date?: string
+          examination_name: string
+          examination_type: string
+          examiner?: string | null
+          id?: string
+          notes?: string | null
+          participant_id: string
+          result?: string | null
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          examination_date?: string
+          examination_name?: string
+          examination_type?: string
+          examiner?: string | null
+          id?: string
+          notes?: string | null
+          participant_id?: string
+          result?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rikkes_examinations_participant_id_fkey"
+            columns: ["participant_id"]
+            isOneToOne: false
+            referencedRelation: "rikkes_participants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rikkes_participants: {
+        Row: {
+          batch: string | null
+          created_at: string
+          date_of_birth: string
+          examination_date: string
+          gender: string
+          id: string
+          name: string
+          overall_result: string | null
+          participant_id: string
+          phone: string | null
+          rank: string | null
+          status: string
+          unit: string | null
+          updated_at: string
+        }
+        Insert: {
+          batch?: string | null
+          created_at?: string
+          date_of_birth: string
+          examination_date: string
+          gender: string
+          id?: string
+          name: string
+          overall_result?: string | null
+          participant_id: string
+          phone?: string | null
+          rank?: string | null
+          status?: string
+          unit?: string | null
+          updated_at?: string
+        }
+        Update: {
+          batch?: string | null
+          created_at?: string
+          date_of_birth?: string
+          examination_date?: string
+          gender?: string
+          id?: string
+          name?: string
+          overall_result?: string | null
+          participant_id?: string
+          phone?: string | null
+          rank?: string | null
+          status?: string
+          unit?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
