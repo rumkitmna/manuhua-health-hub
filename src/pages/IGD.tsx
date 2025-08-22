@@ -12,51 +12,10 @@ import {
   Heart,
   Thermometer
 } from "lucide-react";
+import { useIGD } from "@/hooks/useIGD";
 
 const IGD = () => {
-  const patients = [
-    {
-      id: "IGD001",
-      name: "Ahmad Wijaya",
-      age: 45,
-      complaint: "Nyeri dada hebat",
-      triase: "Merah",
-      time: "14:30",
-      bed: "Bed 1",
-      status: "Kritis"
-    },
-    {
-      id: "IGD002", 
-      name: "Siti Nurhaliza",
-      age: 32,
-      complaint: "Kecelakaan lalu lintas",
-      triase: "Kuning",
-      time: "14:45",
-      bed: "Bed 3",
-      status: "Stabil"
-    },
-    {
-      id: "IGD003",
-      name: "Budi Santoso",
-      age: 28,
-      complaint: "Luka sayat tangan",
-      triase: "Hijau",
-      time: "15:10",
-      bed: "Bed 7",
-      status: "Ringan"
-    }
-  ];
-
-  const beds = [
-    { number: 1, patient: "Ahmad W.", status: "occupied", triase: "red" },
-    { number: 2, patient: null, status: "available", triase: null },
-    { number: 3, patient: "Siti N.", status: "occupied", triase: "yellow" },
-    { number: 4, patient: null, status: "cleaning", triase: null },
-    { number: 5, patient: null, status: "available", triase: null },
-    { number: 6, patient: null, status: "maintenance", triase: null },
-    { number: 7, patient: "Budi S.", status: "occupied", triase: "green" },
-    { number: 8, patient: null, status: "available", triase: null },
-  ];
+  const { igdCases, beds, loading, error } = useIGD();
 
   const getTriaseColor = (triase: string) => {
     switch (triase.toLowerCase()) {
@@ -76,6 +35,27 @@ const IGD = () => {
       default: return "bg-muted border-border text-muted-foreground";
     }
   };
+
+  if (loading) {
+    return (
+      <div className="p-4 lg:p-6 space-y-6">
+        <div className="animate-pulse">
+          <div className="h-8 bg-muted rounded w-64 mb-2"></div>
+          <div className="h-4 bg-muted rounded w-96"></div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-4 lg:p-6">
+        <div className="text-center text-destructive">
+          Error: {error}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-4 lg:p-6 space-y-6">
@@ -112,7 +92,7 @@ const IGD = () => {
             </div>
             <div>
               <p className="text-sm text-muted-foreground">Pasien Kritis</p>
-              <p className="text-xl font-bold text-emergency">3</p>
+              <p className="text-xl font-bold text-emergency">{igdCases.filter(c => c.triage === 'Merah').length}</p>
             </div>
           </div>
         </Card>
@@ -124,7 +104,7 @@ const IGD = () => {
             </div>
             <div>
               <p className="text-sm text-muted-foreground">Total Pasien</p>
-              <p className="text-xl font-bold text-foreground">8</p>
+              <p className="text-xl font-bold text-foreground">{igdCases.length}</p>
             </div>
           </div>
         </Card>
@@ -136,7 +116,7 @@ const IGD = () => {
             </div>
             <div>
               <p className="text-sm text-muted-foreground">Bed Tersedia</p>
-              <p className="text-xl font-bold text-success">3</p>
+              <p className="text-xl font-bold text-success">{beds.filter(b => b.status === 'available').length}</p>
             </div>
           </div>
         </Card>
@@ -160,18 +140,18 @@ const IGD = () => {
           <Card className="medical-card">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold text-foreground">Monitoring Bed</h3>
-              <Badge variant="outline">8 Total</Badge>
+              <Badge variant="outline">{beds.length} Total</Badge>
             </div>
             <div className="grid grid-cols-2 gap-3">
               {beds.map((bed) => (
                 <div 
-                  key={bed.number}
+                  key={bed.id}
                   className={`p-3 rounded-lg border-2 transition-colors ${getBedStatusColor(bed.status)}`}
                 >
                   <div className="text-center">
-                    <p className="font-semibold text-sm">Bed {bed.number}</p>
-                    {bed.patient ? (
-                      <p className="text-xs mt-1 truncate">{bed.patient}</p>
+                    <p className="font-semibold text-sm">Bed {bed.bed_number}</p>
+                    {bed.patients ? (
+                      <p className="text-xs mt-1 truncate">{bed.patients.name}</p>
                     ) : (
                       <p className="text-xs mt-1 capitalize">{bed.status}</p>
                     )}
@@ -192,19 +172,21 @@ const IGD = () => {
               </Button>
             </div>
             <div className="space-y-3">
-              {patients.map((patient) => (
+              {igdCases.map((patient) => (
                 <div key={patient.id} className="p-4 border border-border rounded-lg hover:bg-accent/50 transition-colors">
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2">
-                        <h4 className="font-semibold text-foreground">{patient.name}</h4>
-                        <Badge className={getTriaseColor(patient.triase)}>
-                          {patient.triase}
+                        <h4 className="font-semibold text-foreground">{patient.patients.name}</h4>
+                        <Badge className={getTriaseColor(patient.triage)}>
+                          {patient.triage}
                         </Badge>
-                        <Badge variant="outline">{patient.bed}</Badge>
+                        <Badge variant="outline">
+                          {patient.beds ? `Bed ${patient.beds.bed_number}` : 'No Bed'}
+                        </Badge>
                       </div>
                       <p className="text-sm text-muted-foreground mb-1">
-                        ID: {patient.id} • Usia: {patient.age} tahun
+                        ID: {patient.case_id} • Usia: {patient.patients.age || 'N/A'} tahun
                       </p>
                       <p className="text-sm text-foreground">
                         <strong>Keluhan:</strong> {patient.complaint}
@@ -213,7 +195,10 @@ const IGD = () => {
                     <div className="flex flex-col items-end gap-2">
                       <div className="flex items-center gap-1 text-xs text-muted-foreground">
                         <Clock className="w-3 h-3" />
-                        {patient.time}
+                        {new Date(patient.admission_time).toLocaleTimeString('id-ID', { 
+                          hour: '2-digit', 
+                          minute: '2-digit' 
+                        })}
                       </div>
                       <Button variant="outline" size="sm">
                         Detail

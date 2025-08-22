@@ -11,49 +11,66 @@ import {
   CheckCircle,
   ArrowRight
 } from "lucide-react";
+import { useDashboard } from "@/hooks/useDashboard";
 
 const Dashboard = () => {
-  const stats = [
+  const { stats, recentActivities, loading, error } = useDashboard();
+
+  const statCards = [
     {
       title: "Pasien Hari Ini",
-      value: "127",
-      change: "+12%",
+      value: stats.todayPatients.toString(),
+      change: "Total hari ini",
       trend: "up",
       icon: Users,
       color: "primary"
     },
     {
       title: "IGD Aktif",
-      value: "8",
-      change: "2 Kritis",
-      trend: "warning",
+      value: stats.activeIGD.toString(),
+      change: stats.activeIGD > 5 ? "Tinggi" : "Normal",
+      trend: stats.activeIGD > 5 ? "warning" : "stable",
       icon: Activity,
       color: "emergency"
     },
     {
       title: "Antrian Poli",
-      value: "23",
-      change: "Rata-rata 15 mnt",
+      value: stats.activePoli.toString(),
+      change: "Sedang dilayani",
       trend: "stable",
       icon: Clock,
       color: "warning"
     },
     {
       title: "Lab Selesai",
-      value: "45",
-      change: "+8 dari kemarin",
+      value: stats.completedLab.toString(),
+      change: "Hari ini",
       trend: "up",
       icon: CheckCircle,
       color: "success"
     }
   ];
 
-  const recentActivities = [
-    { id: 1, type: "IGD", message: "Pasien trauma kepala masuk", time: "5 menit lalu", status: "emergency" },
-    { id: 2, type: "Lab", message: "Hasil pemeriksaan darah siap", time: "12 menit lalu", status: "success" },
-    { id: 3, type: "Poli Gigi", message: "Jadwal tindakan scaling", time: "18 menit lalu", status: "info" },
-    { id: 4, type: "Rikkes", message: "Pemeriksaan TNI AU batch 3 dimulai", time: "25 menit lalu", status: "info" },
-  ];
+  if (loading) {
+    return (
+      <div className="p-4 lg:p-6 space-y-6">
+        <div className="animate-pulse">
+          <div className="h-8 bg-muted rounded w-48 mb-2"></div>
+          <div className="h-4 bg-muted rounded w-64"></div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-4 lg:p-6">
+        <div className="text-center text-destructive">
+          Error: {error}
+        </div>
+      </div>
+    );
+  }
 
   const quickActions = [
     { title: "Registrasi Pasien Baru", desc: "Daftarkan pasien untuk layanan poli", href: "/poli-umum" },
@@ -83,7 +100,7 @@ const Dashboard = () => {
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {stats.map((stat, index) => (
+        {statCards.map((stat, index) => (
           <Card key={index} className="medical-card">
             <div className="flex items-center justify-between">
               <div>

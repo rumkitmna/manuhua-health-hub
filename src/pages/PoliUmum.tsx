@@ -12,58 +12,47 @@ import {
   UserPlus,
   FileText
 } from "lucide-react";
+import { useAppointments } from "@/hooks/useAppointments";
 
 const PoliUmum = () => {
-  const todaySchedule = [
-    { time: "08:00", doctor: "Dr. Sarah Wijaya", patients: 12, status: "active" },
-    { time: "10:00", doctor: "Dr. Ahmad Fauzi", patients: 8, status: "active" },
-    { time: "14:00", doctor: "Dr. Linda Sari", patients: 15, status: "waiting" },
-    { time: "16:00", doctor: "Dr. Budi Hartono", patients: 6, status: "waiting" },
-  ];
+  const { appointments, loading, error } = useAppointments('Poli Umum');
 
-  const queueList = [
-    {
-      no: "A001",
-      name: "Ibu Siti Aminah", 
-      time: "08:15",
-      complaint: "Kontrol diabetes",
-      doctor: "Dr. Sarah Wijaya",
-      status: "current"
-    },
-    {
-      no: "A002",
-      name: "Pak Joko Susilo",
-      time: "08:30", 
-      complaint: "Hipertensi",
-      doctor: "Dr. Sarah Wijaya",
-      status: "waiting"
-    },
-    {
-      no: "A003",
-      name: "Ibu Maria Santos",
-      time: "08:45",
-      complaint: "Demam dan batuk",
-      doctor: "Dr. Sarah Wijaya", 
-      status: "waiting"
-    },
-    {
-      no: "B001",
-      name: "Pak Agus Rahmat",
-      time: "10:15",
-      complaint: "Nyeri punggung",
-      doctor: "Dr. Ahmad Fauzi",
-      status: "waiting"
-    }
+  const todaySchedule = [
+    { time: "08:00", doctor: "Dr. Sarah Wijaya", patients: appointments.filter(a => a.doctors.name === "Dr. Sarah Wijaya").length, status: "active" },
+    { time: "10:00", doctor: "Dr. Ahmad Fauzi", patients: appointments.filter(a => a.doctors.name === "Dr. Ahmad Fauzi").length, status: "active" },
+    { time: "14:00", doctor: "Dr. Linda Sari", patients: appointments.filter(a => a.doctors.name === "Dr. Linda Sari").length, status: "waiting" },
+    { time: "16:00", doctor: "Dr. Budi Hartono", patients: appointments.filter(a => a.doctors.name === "Dr. Budi Hartono").length, status: "waiting" },
   ];
 
   const getQueueStatus = (status: string) => {
     switch (status) {
       case "current": return "bg-primary text-primary-foreground";
       case "waiting": return "bg-warning/10 text-warning border border-warning";
-      case "done": return "bg-success/10 text-success border border-success";
+      case "completed": return "bg-success/10 text-success border border-success";
       default: return "bg-muted text-muted-foreground";
     }
   };
+
+  if (loading) {
+    return (
+      <div className="p-4 lg:p-6 space-y-6">
+        <div className="animate-pulse">
+          <div className="h-8 bg-muted rounded w-48 mb-2"></div>
+          <div className="h-4 bg-muted rounded w-64"></div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-4 lg:p-6">
+        <div className="text-center text-destructive">
+          Error: {error}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-4 lg:p-6 space-y-6">
@@ -104,7 +93,7 @@ const PoliUmum = () => {
             </div>
             <div>
               <p className="text-sm text-muted-foreground">Pasien Hari Ini</p>
-              <p className="text-xl font-bold text-foreground">41</p>
+              <p className="text-xl font-bold text-foreground">{appointments.length}</p>
             </div>
           </div>
         </Card>
@@ -116,7 +105,7 @@ const PoliUmum = () => {
             </div>
             <div>
               <p className="text-sm text-muted-foreground">Antrian Aktif</p>
-              <p className="text-xl font-bold text-warning">12</p>
+              <p className="text-xl font-bold text-warning">{appointments.filter(a => a.status === 'waiting' || a.status === 'current').length}</p>
             </div>
           </div>
         </Card>
@@ -128,7 +117,7 @@ const PoliUmum = () => {
             </div>
             <div>
               <p className="text-sm text-muted-foreground">Selesai</p>
-              <p className="text-xl font-bold text-success">29</p>
+              <p className="text-xl font-bold text-success">{appointments.filter(a => a.status === 'completed').length}</p>
             </div>
           </div>
         </Card>
@@ -193,13 +182,13 @@ const PoliUmum = () => {
               </div>
             </div>
             <div className="space-y-3">
-              {queueList.map((patient, index) => (
+              {appointments.map((patient, index) => (
                 <div key={index} className="p-4 border border-border rounded-lg hover:bg-accent/50 transition-colors">
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2">
                         <Badge className={getQueueStatus(patient.status)}>
-                          {patient.no}
+                          {patient.queue_number || patient.appointment_id}
                         </Badge>
                         {patient.status === "current" && (
                           <Badge className="bg-primary text-primary-foreground animate-pulse">
@@ -207,18 +196,18 @@ const PoliUmum = () => {
                           </Badge>
                         )}
                       </div>
-                      <h4 className="font-semibold text-foreground">{patient.name}</h4>
+                      <h4 className="font-semibold text-foreground">{patient.patients.name}</h4>
                       <p className="text-sm text-muted-foreground mb-1">
-                        Dokter: {patient.doctor}
+                        Dokter: {patient.doctors.name}
                       </p>
                       <p className="text-sm text-foreground">
-                        <strong>Keluhan:</strong> {patient.complaint}
+                        <strong>Keluhan:</strong> {patient.complaint || 'Tidak ada keluhan'}
                       </p>
                     </div>
                     <div className="flex flex-col items-end gap-2">
                       <div className="flex items-center gap-1 text-xs text-muted-foreground">
                         <Clock className="w-3 h-3" />
-                        {patient.time}
+                        {patient.appointment_time}
                       </div>
                       <div className="flex gap-2">
                         <Button variant="outline" size="sm">
