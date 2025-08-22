@@ -2,41 +2,77 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
+/* Medical/Healthcare Design System for SIM Klinik Manuhua */
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    /* Background & Surface */
+    --background: 220 14% 96%;
+    --foreground: 222 19% 13%;
+    --surface: 0 0% 100%;
 
+    /* Cards & Components */
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 222 19% 13%;
+    --card-accent: 214 32% 91%;
 
+    /* Popover & Overlays */
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover-foreground: 222 19% 13%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    /* Medical Primary - Professional Blue */
+    --primary: 214 84% 56%;
+    --primary-foreground: 0 0% 100%;
+    --primary-hover: 214 84% 46%;
+    --primary-light: 214 84% 96%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    /* Medical Success - Healthcare Green */
+    --success: 142 71% 45%;
+    --success-foreground: 0 0% 100%;
+    --success-light: 142 71% 95%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    /* Medical Warning - Alert Orange */
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 100%;
+    --warning-light: 38 92% 95%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    /* Medical Emergency - Urgent Red */
+    --emergency: 0 84% 60%;
+    --emergency-foreground: 0 0% 100%;
+    --emergency-light: 0 84% 95%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    /* Secondary & Neutral */
+    --secondary: 214 32% 91%;
+    --secondary-foreground: 222 19% 13%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --muted: 220 14% 96%;
+    --muted-foreground: 215 16% 47%;
 
-    --radius: 0.5rem;
+    --accent: 214 32% 91%;
+    --accent-foreground: 222 19% 13%;
+
+    /* System Colors */
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 214 84% 56%;
+
+    /* Layout & Spacing */
+    --radius: 0.75rem;
+    --radius-sm: 0.5rem;
+    --radius-lg: 1rem;
+
+    /* Medical Gradients */
+    --gradient-medical: linear-gradient(135deg, hsl(214 84% 56%), hsl(214 84% 46%));
+    --gradient-success: linear-gradient(135deg, hsl(142 71% 45%), hsl(142 71% 35%));
+    --gradient-surface: linear-gradient(135deg, hsl(0 0% 100%), hsl(214 32% 98%));
+    
+    /* Medical Shadows */
+    --shadow-medical: 0 4px 6px -1px hsl(214 84% 56% / 0.1), 0 2px 4px -1px hsl(214 84% 56% / 0.06);
+    --shadow-card: 0 1px 3px 0 hsl(0 0% 0% / 0.1), 0 1px 2px 0 hsl(0 0% 0% / 0.06);
+    --shadow-elevated: 0 10px 15px -3px hsl(0 0% 0% / 0.1), 0 4px 6px -2px hsl(0 0% 0% / 0.05);
 
     --sidebar-background: 0 0% 98%;
 
@@ -56,41 +92,93 @@ All colors MUST be HSL.
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
+    /* Dark mode medical theme */
+    --background: 220 13% 9%;
+    --foreground: 220 14% 96%;
+    --surface: 220 13% 11%;
 
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
+    --card: 220 13% 11%;
+    --card-foreground: 220 14% 96%;
+    --card-accent: 220 13% 18%;
 
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 220 13% 11%;
+    --popover-foreground: 220 14% 96%;
 
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
+    /* Dark Medical Colors */
+    --primary: 214 84% 66%;
+    --primary-foreground: 220 13% 9%;
+    --primary-hover: 214 84% 56%;
+    --primary-light: 214 84% 15%;
 
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
+    --success: 142 71% 55%;
+    --success-foreground: 220 13% 9%;
+    --success-light: 142 71% 15%;
 
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+    --warning: 38 92% 60%;
+    --warning-foreground: 220 13% 9%;
+    --warning-light: 38 92% 15%;
 
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
+    --emergency: 0 84% 70%;
+    --emergency-foreground: 220 13% 9%;
+    --emergency-light: 0 84% 15%;
 
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
+    --secondary: 220 13% 18%;
+    --secondary-foreground: 220 14% 96%;
 
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --muted: 220 13% 15%;
+    --muted-foreground: 215 16% 57%;
+
+    --accent: 220 13% 18%;
+    --accent-foreground: 220 14% 96%;
+
+    --destructive: 0 84% 70%;
+    --destructive-foreground: 220 13% 9%;
+
+    --border: 220 13% 18%;
+    --input: 220 13% 18%;
+    --ring: 214 84% 66%;
+
+    /* Dark Gradients */
+    --gradient-medical: linear-gradient(135deg, hsl(214 84% 66%), hsl(214 84% 56%));
+    --gradient-success: linear-gradient(135deg, hsl(142 71% 55%), hsl(142 71% 45%));
+    --gradient-surface: linear-gradient(135deg, hsl(220 13% 11%), hsl(220 13% 13%));
+  }
+}
+
+/* Medical Components & Utilities */
+@layer components {
+  .medical-card {
+    @apply bg-card border border-border rounded-lg p-6;
+    box-shadow: var(--shadow-card);
+  }
+  
+  .medical-card-elevated {
+    @apply medical-card;
+    box-shadow: var(--shadow-elevated);
+  }
+
+  .medical-gradient {
+    background: var(--gradient-medical);
+  }
+
+  .success-gradient {
+    background: var(--gradient-success);
+  }
+
+  .surface-gradient {
+    background: var(--gradient-surface);
+  }
+
+  .status-badge-success {
+    @apply bg-success/10 text-success px-2 py-1 rounded-full text-xs font-medium;
+  }
+  
+  .status-badge-warning {
+    @apply bg-warning/10 text-warning px-2 py-1 rounded-full text-xs font-medium;
+  }
+  
+  .status-badge-emergency {
+    @apply bg-emergency/10 text-emergency px-2 py-1 rounded-full text-xs font-medium;
   }
 }
 
