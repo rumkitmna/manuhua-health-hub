@@ -95,11 +95,97 @@ export const useIGD = () => {
     }
   };
 
+  const addIGDCase = async (caseData: any) => {
+    try {
+      const { data, error } = await supabase
+        .from('igd_cases')
+        .insert([caseData])
+        .select(`
+          *,
+          patients(name, patient_id, date_of_birth),
+          beds(bed_number),
+          doctors(name)
+        `)
+        .single();
+
+      if (error) throw error;
+      
+      const caseWithAge = {
+        ...data,
+        patients: {
+          ...data.patients,
+          age: data.patients?.date_of_birth 
+            ? new Date().getFullYear() - new Date(data.patients.date_of_birth).getFullYear()
+            : undefined
+        }
+      };
+      
+      setIgdCases(prev => [caseWithAge, ...prev]);
+      return { data: caseWithAge, error: null };
+    } catch (err) {
+      const error = err instanceof Error ? err.message : 'An error occurred';
+      return { data: null, error };
+    }
+  };
+
+  const updateIGDCase = async (id: string, caseData: any) => {
+    try {
+      const { data, error } = await supabase
+        .from('igd_cases')
+        .update(caseData)
+        .eq('id', id)
+        .select(`
+          *,
+          patients(name, patient_id, date_of_birth),
+          beds(bed_number),
+          doctors(name)
+        `)
+        .single();
+
+      if (error) throw error;
+      
+      const caseWithAge = {
+        ...data,
+        patients: {
+          ...data.patients,
+          age: data.patients?.date_of_birth 
+            ? new Date().getFullYear() - new Date(data.patients.date_of_birth).getFullYear()
+            : undefined
+        }
+      };
+      
+      setIgdCases(prev => prev.map(c => c.id === id ? caseWithAge : c));
+      return { data: caseWithAge, error: null };
+    } catch (err) {
+      const error = err instanceof Error ? err.message : 'An error occurred';
+      return { data: null, error };
+    }
+  };
+
+  const deleteIGDCase = async (id: string) => {
+    try {
+      const { error } = await supabase
+        .from('igd_cases')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+      setIgdCases(prev => prev.filter(c => c.id !== id));
+      return { error: null };
+    } catch (err) {
+      const error = err instanceof Error ? err.message : 'An error occurred';
+      return { error };
+    }
+  };
+
   return {
     igdCases,
     beds,
     loading,
     error,
-    fetchIGDData
+    fetchIGDData,
+    addIGDCase,
+    updateIGDCase,
+    deleteIGDCase
   };
 };

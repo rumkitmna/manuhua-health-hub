@@ -10,12 +10,90 @@ import {
   Plus,
   Search,
   UserPlus,
-  FileText
+  FileText,
+  Edit,
+  Trash2
 } from "lucide-react";
 import { useAppointments } from "@/hooks/useAppointments";
+import { useState } from "react";
+import { CrudModal, DeleteModal } from "@/components/modals/CrudModal";
+import { AppointmentForm } from "@/components/forms/AppointmentForm";
+import { useToast } from "@/hooks/use-toast";
 
 const PoliUmum = () => {
-  const { appointments, loading, error } = useAppointments('Poli Umum');
+  const { appointments, loading, error, addAppointment, updateAppointment, deleteAppointment } = useAppointments('Poli Umum');
+  const { toast } = useToast();
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [selectedAppointment, setSelectedAppointment] = useState<any>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleCreate = async (data: any) => {
+    setIsSubmitting(true);
+    const { error } = await addAppointment(data);
+    
+    if (error) {
+      toast({
+        title: "Error",
+        description: error,
+        variant: "destructive"
+      });
+    } else {
+      toast({
+        title: "Berhasil",
+        description: "Appointment berhasil dibuat"
+      });
+      setIsCreateModalOpen(false);
+    }
+    setIsSubmitting(false);
+  };
+
+  const handleUpdate = async (data: any) => {
+    if (!selectedAppointment) return;
+    
+    setIsSubmitting(true);
+    const { error } = await updateAppointment(selectedAppointment.id, data);
+    
+    if (error) {
+      toast({
+        title: "Error",
+        description: error,
+        variant: "destructive"
+      });
+    } else {
+      toast({
+        title: "Berhasil",
+        description: "Appointment berhasil diupdate"
+      });
+      setIsEditModalOpen(false);
+      setSelectedAppointment(null);
+    }
+    setIsSubmitting(false);
+  };
+
+  const handleDelete = async () => {
+    if (!selectedAppointment) return;
+    
+    setIsSubmitting(true);
+    const { error } = await deleteAppointment(selectedAppointment.id);
+    
+    if (error) {
+      toast({
+        title: "Error",
+        description: error,
+        variant: "destructive"
+      });
+    } else {
+      toast({
+        title: "Berhasil",
+        description: "Appointment berhasil dihapus"
+      });
+      setIsDeleteModalOpen(false);
+      setSelectedAppointment(null);
+    }
+    setIsSubmitting(false);
+  };
 
   const todaySchedule = [
     { time: "08:00", doctor: "Dr. Sarah Wijaya", patients: appointments.filter(a => a.doctors.name === "Dr. Sarah Wijaya").length, status: "active" },
@@ -73,11 +151,11 @@ const PoliUmum = () => {
               className="pl-10 w-64"
             />
           </div>
-          <Button variant="outline">
+          <Button variant="outline" onClick={() => setIsCreateModalOpen(true)}>
             <UserPlus className="w-4 h-4 mr-2" />
             Registrasi
           </Button>
-          <Button className="bg-gradient-medical hover:bg-primary-hover">
+          <Button className="bg-gradient-medical hover:bg-primary-hover" onClick={() => setIsCreateModalOpen(true)}>
             <Plus className="w-4 h-4 mr-2" />
             Pasien Baru
           </Button>
@@ -210,11 +288,19 @@ const PoliUmum = () => {
                         {patient.appointment_time}
                       </div>
                       <div className="flex gap-2">
-                        <Button variant="outline" size="sm">
+                        <Button variant="outline" size="sm" onClick={() => {
+                          setSelectedAppointment(patient);
+                          setIsEditModalOpen(true);
+                        }}>
+                          <Edit className="w-3 h-3 mr-1" />
                           Edit
                         </Button>
-                        <Button variant="outline" size="sm">
-                          Panggil
+                        <Button variant="outline" size="sm" onClick={() => {
+                          setSelectedAppointment(patient);
+                          setIsDeleteModalOpen(true);
+                        }}>
+                          <Trash2 className="w-3 h-3 mr-1" />
+                          Hapus
                         </Button>
                       </div>
                     </div>
@@ -225,6 +311,47 @@ const PoliUmum = () => {
           </Card>
         </div>
       </div>
+
+      {/* Modals */}
+      <CrudModal
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+        title="Buat Appointment Baru"
+      >
+        <AppointmentForm
+          onSubmit={handleCreate}
+          department="Poli Umum"
+          isLoading={isSubmitting}
+        />
+      </CrudModal>
+
+      <CrudModal
+        isOpen={isEditModalOpen}
+        onClose={() => {
+          setIsEditModalOpen(false);
+          setSelectedAppointment(null);
+        }}
+        title="Edit Appointment"
+      >
+        <AppointmentForm
+          onSubmit={handleUpdate}
+          initialData={selectedAppointment}
+          department="Poli Umum"
+          isLoading={isSubmitting}
+        />
+      </CrudModal>
+
+      <DeleteModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => {
+          setIsDeleteModalOpen(false);
+          setSelectedAppointment(null);
+        }}
+        onConfirm={handleDelete}
+        title="Hapus Appointment"
+        description={`Apakah Anda yakin ingin menghapus appointment ${selectedAppointment?.appointment_id}? Tindakan ini tidak dapat dibatalkan.`}
+        isLoading={isSubmitting}
+      />
     </div>
   );
 };

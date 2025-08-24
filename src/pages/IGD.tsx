@@ -10,12 +10,90 @@ import {
   Search,
   AlertTriangle,
   Heart,
-  Thermometer
+  Thermometer,
+  Edit,
+  Trash2
 } from "lucide-react";
 import { useIGD } from "@/hooks/useIGD";
+import { useState } from "react";
+import { CrudModal, DeleteModal } from "@/components/modals/CrudModal";
+import { IGDForm } from "@/components/forms/IGDForm";
+import { useToast } from "@/hooks/use-toast";
 
 const IGD = () => {
-  const { igdCases, beds, loading, error } = useIGD();
+  const { igdCases, beds, loading, error, fetchIGDData, addIGDCase, updateIGDCase, deleteIGDCase } = useIGD();
+  const { toast } = useToast();
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [selectedCase, setSelectedCase] = useState<any>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleCreate = async (data: any) => {
+    setIsSubmitting(true);
+    const { error } = await addIGDCase(data);
+    
+    if (error) {
+      toast({
+        title: "Error",
+        description: error,
+        variant: "destructive"
+      });
+    } else {
+      toast({
+        title: "Berhasil",
+        description: "Kasus IGD berhasil ditambahkan"
+      });
+      setIsCreateModalOpen(false);
+    }
+    setIsSubmitting(false);
+  };
+
+  const handleUpdate = async (data: any) => {
+    if (!selectedCase) return;
+    
+    setIsSubmitting(true);
+    const { error } = await updateIGDCase(selectedCase.id, data);
+    
+    if (error) {
+      toast({
+        title: "Error",
+        description: error,
+        variant: "destructive"
+      });
+    } else {
+      toast({
+        title: "Berhasil",
+        description: "Kasus IGD berhasil diupdate"
+      });
+      setIsEditModalOpen(false);
+      setSelectedCase(null);
+    }
+    setIsSubmitting(false);
+  };
+
+  const handleDelete = async () => {
+    if (!selectedCase) return;
+    
+    setIsSubmitting(true);
+    const { error } = await deleteIGDCase(selectedCase.id);
+    
+    if (error) {
+      toast({
+        title: "Error",
+        description: error,
+        variant: "destructive"
+      });
+    } else {
+      toast({
+        title: "Berhasil",
+        description: "Kasus IGD berhasil dihapus"
+      });
+      setIsDeleteModalOpen(false);
+      setSelectedCase(null);
+    }
+    setIsSubmitting(false);
+  };
 
   const getTriaseColor = (triase: string) => {
     switch (triase.toLowerCase()) {
@@ -76,7 +154,7 @@ const IGD = () => {
               className="pl-10 w-64"
             />
           </div>
-          <Button className="bg-gradient-medical hover:bg-primary-hover">
+          <Button className="bg-gradient-medical hover:bg-primary-hover" onClick={() => setIsCreateModalOpen(true)}>
             <Plus className="w-4 h-4 mr-2" />
             Pasien Baru
           </Button>
@@ -200,9 +278,22 @@ const IGD = () => {
                           minute: '2-digit' 
                         })}
                       </div>
-                      <Button variant="outline" size="sm">
-                        Detail
-                      </Button>
+                      <div className="flex gap-2">
+                        <Button variant="outline" size="sm" onClick={() => {
+                          setSelectedCase(patient);
+                          setIsEditModalOpen(true);
+                        }}>
+                          <Edit className="w-3 h-3 mr-1" />
+                          Edit
+                        </Button>
+                        <Button variant="outline" size="sm" onClick={() => {
+                          setSelectedCase(patient);
+                          setIsDeleteModalOpen(true);
+                        }}>
+                          <Trash2 className="w-3 h-3 mr-1" />
+                          Hapus
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -211,6 +302,45 @@ const IGD = () => {
           </Card>
         </div>
       </div>
+
+      {/* Modals */}
+      <CrudModal
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+        title="Tambah Kasus IGD Baru"
+      >
+        <IGDForm
+          onSubmit={handleCreate}
+          isLoading={isSubmitting}
+        />
+      </CrudModal>
+
+      <CrudModal
+        isOpen={isEditModalOpen}
+        onClose={() => {
+          setIsEditModalOpen(false);
+          setSelectedCase(null);
+        }}
+        title="Edit Kasus IGD"
+      >
+        <IGDForm
+          onSubmit={handleUpdate}
+          initialData={selectedCase}
+          isLoading={isSubmitting}
+        />
+      </CrudModal>
+
+      <DeleteModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => {
+          setIsDeleteModalOpen(false);
+          setSelectedCase(null);
+        }}
+        onConfirm={handleDelete}
+        title="Hapus Kasus IGD"
+        description={`Apakah Anda yakin ingin menghapus kasus ${selectedCase?.case_id}? Tindakan ini tidak dapat dibatalkan.`}
+        isLoading={isSubmitting}
+      />
     </div>
   );
 };

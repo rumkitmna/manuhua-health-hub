@@ -65,11 +65,65 @@ export const useRikkes = () => {
     }
   };
 
+  const addRikkesParticipant = async (participantData: any) => {
+    try {
+      const { data, error } = await supabase
+        .from('rikkes_participants')
+        .insert([participantData])
+        .select()
+        .single();
+
+      if (error) throw error;
+      setParticipants(prev => [data, ...prev]);
+      return { data, error: null };
+    } catch (err) {
+      const error = err instanceof Error ? err.message : 'An error occurred';
+      return { data: null, error };
+    }
+  };
+
+  const updateRikkesParticipant = async (id: string, participantData: any) => {
+    try {
+      const { data, error } = await supabase
+        .from('rikkes_participants')
+        .update(participantData)
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (error) throw error;
+      setParticipants(prev => prev.map(p => p.id === id ? data : p));
+      return { data, error: null };
+    } catch (err) {
+      const error = err instanceof Error ? err.message : 'An error occurred';
+      return { data: null, error };
+    }
+  };
+
+  const deleteRikkesParticipant = async (id: string) => {
+    try {
+      const { error } = await supabase
+        .from('rikkes_participants')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+      setParticipants(prev => prev.filter(p => p.id !== id));
+      return { error: null };
+    } catch (err) {
+      const error = err instanceof Error ? err.message : 'An error occurred';
+      return { error };
+    }
+  };
+
   return {
     participants,
     examinations,
     loading,
     error,
-    fetchRikkesData
+    fetchRikkesData,
+    addRikkesParticipant,
+    updateRikkesParticipant,
+    deleteRikkesParticipant
   };
 };

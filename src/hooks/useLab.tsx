@@ -54,10 +54,72 @@ export const useLab = () => {
     }
   };
 
+  const addLabTest = async (testData: any) => {
+    try {
+      const { data, error } = await supabase
+        .from('lab_tests')
+        .insert([testData])
+        .select(`
+          *,
+          patients(name, patient_id),
+          doctors(name)
+        `)
+        .single();
+
+      if (error) throw error;
+      setLabTests(prev => [data, ...prev]);
+      return { data, error: null };
+    } catch (err) {
+      const error = err instanceof Error ? err.message : 'An error occurred';
+      return { data: null, error };
+    }
+  };
+
+  const updateLabTest = async (id: string, testData: any) => {
+    try {
+      const { data, error } = await supabase
+        .from('lab_tests')
+        .update(testData)
+        .eq('id', id)
+        .select(`
+          *,
+          patients(name, patient_id),
+          doctors(name)
+        `)
+        .single();
+
+      if (error) throw error;
+      setLabTests(prev => prev.map(t => t.id === id ? data : t));
+      return { data, error: null };
+    } catch (err) {
+      const error = err instanceof Error ? err.message : 'An error occurred';
+      return { data: null, error };
+    }
+  };
+
+  const deleteLabTest = async (id: string) => {
+    try {
+      const { error } = await supabase
+        .from('lab_tests')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+      setLabTests(prev => prev.filter(t => t.id !== id));
+      return { error: null };
+    } catch (err) {
+      const error = err instanceof Error ? err.message : 'An error occurred';
+      return { error };
+    }
+  };
+
   return {
     labTests,
     loading,
     error,
-    fetchLabTests
+    fetchLabTests,
+    addLabTest,
+    updateLabTest,
+    deleteLabTest
   };
 };

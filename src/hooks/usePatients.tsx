@@ -57,11 +57,47 @@ export const usePatients = () => {
     }
   };
 
+  const updatePatient = async (id: string, patientData: Partial<Patient>) => {
+    try {
+      const { data, error } = await supabase
+        .from('patients')
+        .update(patientData)
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (error) throw error;
+      setPatients(prev => prev.map(p => p.id === id ? data : p));
+      return { data, error: null };
+    } catch (err) {
+      const error = err instanceof Error ? err.message : 'An error occurred';
+      return { data: null, error };
+    }
+  };
+
+  const deletePatient = async (id: string) => {
+    try {
+      const { error } = await supabase
+        .from('patients')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+      setPatients(prev => prev.filter(p => p.id !== id));
+      return { error: null };
+    } catch (err) {
+      const error = err instanceof Error ? err.message : 'An error occurred';
+      return { error };
+    }
+  };
+
   return {
     patients,
     loading,
     error,
     fetchPatients,
-    addPatient
+    addPatient,
+    updatePatient,
+    deletePatient
   };
 };

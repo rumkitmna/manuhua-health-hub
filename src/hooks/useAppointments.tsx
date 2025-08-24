@@ -60,10 +60,72 @@ export const useAppointments = (department?: string) => {
     }
   };
 
+  const addAppointment = async (appointmentData: any) => {
+    try {
+      const { data, error } = await supabase
+        .from('appointments')
+        .insert([appointmentData])
+        .select(`
+          *,
+          patients(name, patient_id),
+          doctors(name)
+        `)
+        .single();
+
+      if (error) throw error;
+      setAppointments(prev => [data, ...prev]);
+      return { data, error: null };
+    } catch (err) {
+      const error = err instanceof Error ? err.message : 'An error occurred';
+      return { data: null, error };
+    }
+  };
+
+  const updateAppointment = async (id: string, appointmentData: any) => {
+    try {
+      const { data, error } = await supabase
+        .from('appointments')
+        .update(appointmentData)
+        .eq('id', id)
+        .select(`
+          *,
+          patients(name, patient_id),
+          doctors(name)
+        `)
+        .single();
+
+      if (error) throw error;
+      setAppointments(prev => prev.map(a => a.id === id ? data : a));
+      return { data, error: null };
+    } catch (err) {
+      const error = err instanceof Error ? err.message : 'An error occurred';
+      return { data: null, error };
+    }
+  };
+
+  const deleteAppointment = async (id: string) => {
+    try {
+      const { error } = await supabase
+        .from('appointments')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+      setAppointments(prev => prev.filter(a => a.id !== id));
+      return { error: null };
+    } catch (err) {
+      const error = err instanceof Error ? err.message : 'An error occurred';
+      return { error };
+    }
+  };
+
   return {
     appointments,
     loading,
     error,
-    fetchAppointments
+    fetchAppointments,
+    addAppointment,
+    updateAppointment,
+    deleteAppointment
   };
 };
