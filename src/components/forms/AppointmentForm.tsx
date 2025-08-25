@@ -16,14 +16,15 @@ interface AppointmentFormProps {
   initialData?: any;
   isLoading?: boolean;
   department?: string;
+  preselectedPatient?: any;
 }
 
-export const AppointmentForm = ({ onSubmit, initialData, isLoading, department }: AppointmentFormProps) => {
+export const AppointmentForm = ({ onSubmit, initialData, isLoading, department, preselectedPatient }: AppointmentFormProps) => {
   const [patients, setPatients] = useState<any[]>([]);
   const [doctors, setDoctors] = useState<any[]>([]);
   const [formData, setFormData] = useState({
     appointment_id: initialData?.appointment_id || '',
-    patient_id: initialData?.patient_id || '',
+    patient_id: initialData?.patient_id || preselectedPatient?.id || '',
     doctor_id: initialData?.doctor_id || '',
     department: initialData?.department || department || 'Poli Umum',
     appointment_date: initialData?.appointment_date ? new Date(initialData.appointment_date) : new Date(),
@@ -37,6 +38,16 @@ export const AppointmentForm = ({ onSubmit, initialData, isLoading, department }
   useEffect(() => {
     fetchData();
   }, []);
+
+  // Update patient_id when preselectedPatient changes
+  useEffect(() => {
+    if (preselectedPatient) {
+      setFormData(prev => ({
+        ...prev,
+        patient_id: preselectedPatient.id
+      }));
+    }
+  }, [preselectedPatient]);
 
   const fetchData = async () => {
     // Fetch patients
@@ -93,18 +104,25 @@ export const AppointmentForm = ({ onSubmit, initialData, isLoading, department }
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label htmlFor="patient_id">Pasien</Label>
-          <Select value={formData.patient_id} onValueChange={(value) => setFormData(prev => ({ ...prev, patient_id: value }))}>
-            <SelectTrigger>
-              <SelectValue placeholder="Pilih pasien" />
-            </SelectTrigger>
-            <SelectContent>
-              {patients.map((patient) => (
-                <SelectItem key={patient.id} value={patient.id}>
-                  {patient.name} ({patient.patient_id})
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          {preselectedPatient ? (
+            <div className="p-2 bg-accent rounded-md">
+              <p className="font-medium">{preselectedPatient.name}</p>
+              <p className="text-sm text-muted-foreground">ID: {preselectedPatient.patient_id}</p>
+            </div>
+          ) : (
+            <Select value={formData.patient_id} onValueChange={(value) => setFormData(prev => ({ ...prev, patient_id: value }))}>
+              <SelectTrigger>
+                <SelectValue placeholder="Pilih pasien" />
+              </SelectTrigger>
+              <SelectContent>
+                {patients.map((patient) => (
+                  <SelectItem key={patient.id} value={patient.id}>
+                    {patient.name} ({patient.patient_id})
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
         </div>
         <div className="space-y-2">
           <Label htmlFor="doctor_id">Dokter</Label>

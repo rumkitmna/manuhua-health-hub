@@ -18,15 +18,27 @@ import { useAppointments } from "@/hooks/useAppointments";
 import { useState } from "react";
 import { CrudModal, DeleteModal } from "@/components/modals/CrudModal";
 import { AppointmentForm } from "@/components/forms/AppointmentForm";
+import { PatientRegistrationForm } from "@/components/forms/PatientRegistrationForm";
+import { SOAPForm } from "@/components/forms/SOAPForm";
+import { useMedicalExaminations } from "@/hooks/useMedicalExaminations";
 import { useToast } from "@/hooks/use-toast";
 
 const PoliUmum = () => {
   const { appointments, loading, error, addAppointment, updateAppointment, deleteAppointment } = useAppointments('Poli Umum');
+  const { addExamination, updateExamination } = useMedicalExaminations();
   const { toast } = useToast();
+  
+  // Modal states
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isRegistrationModalOpen, setIsRegistrationModalOpen] = useState(false);
+  const [isSOAPModalOpen, setIsSOAPModalOpen] = useState(false);
+  
+  // Data states
   const [selectedAppointment, setSelectedAppointment] = useState<any>(null);
+  const [selectedPatient, setSelectedPatient] = useState<any>(null);
+  const [soapExaminationType, setSOAPExaminationType] = useState<'doctor' | 'nurse'>('doctor');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleCreate = async (data: any) => {
@@ -95,6 +107,47 @@ const PoliUmum = () => {
     setIsSubmitting(false);
   };
 
+  const handlePatientRegistration = (patient: any) => {
+    setSelectedPatient(patient);
+    setIsRegistrationModalOpen(false);
+    setIsCreateModalOpen(true);
+  };
+
+  const handleNewPatientCreated = (patient: any) => {
+    setSelectedPatient(patient);
+    setIsRegistrationModalOpen(false);
+    setIsCreateModalOpen(true);
+  };
+
+  const handleSOAPSubmit = async (soapData: any) => {
+    if (!selectedAppointment) return;
+    
+    setIsSubmitting(true);
+    const { error } = await addExamination(soapData);
+    
+    if (error) {
+      toast({
+        title: "Error",
+        description: error,
+        variant: "destructive"
+      });
+    } else {
+      toast({
+        title: "Berhasil",
+        description: "Pemeriksaan SOAP berhasil disimpan"
+      });
+      setIsSOAPModalOpen(false);
+      setSelectedAppointment(null);
+    }
+    setIsSubmitting(false);
+  };
+
+  const handleOpenSOAP = (appointment: any, type: 'doctor' | 'nurse') => {
+    setSelectedAppointment(appointment);
+    setSOAPExaminationType(type);
+    setIsSOAPModalOpen(true);
+  };
+
   const todaySchedule = [
     { time: "08:00", doctor: "Dr. Sarah Wijaya", patients: appointments.filter(a => a.doctors.name === "Dr. Sarah Wijaya").length, status: "active" },
     { time: "10:00", doctor: "Dr. Ahmad Fauzi", patients: appointments.filter(a => a.doctors.name === "Dr. Ahmad Fauzi").length, status: "active" },
@@ -151,13 +204,13 @@ const PoliUmum = () => {
               className="pl-10 w-64"
             />
           </div>
-          <Button variant="outline" onClick={() => setIsCreateModalOpen(true)}>
+          <Button variant="outline" onClick={() => setIsRegistrationModalOpen(true)}>
             <UserPlus className="w-4 h-4 mr-2" />
-            Appointment
+            Registrasi Pasien
           </Button>
           <Button className="bg-gradient-medical hover:bg-primary-hover" onClick={() => setIsCreateModalOpen(true)}>
             <Plus className="w-4 h-4 mr-2" />
-            SOAP
+            Appointment
           </Button>
         </div>
       </div>
@@ -295,9 +348,13 @@ const PoliUmum = () => {
                           <Edit className="w-3 h-3 mr-1" />
                           Edit
                         </Button>
-                        <Button variant="outline" size="sm">
+                        <Button variant="outline" size="sm" onClick={() => handleOpenSOAP(patient, 'doctor')}>
                           <FileText className="w-3 h-3 mr-1" />
-                          SOAP
+                          SOAP Dokter
+                        </Button>
+                        <Button variant="outline" size="sm" onClick={() => handleOpenSOAP(patient, 'nurse')}>
+                          <FileText className="w-3 h-3 mr-1" />
+                          SOAP Perawat
                         </Button>
                         <Button variant="outline" size="sm" onClick={() => {
                           setSelectedAppointment(patient);
@@ -318,14 +375,32 @@ const PoliUmum = () => {
 
       {/* Modals */}
       <CrudModal
+        isOpen={isRegistrationModalOpen}
+        onClose={() => {
+          setIsRegistrationModalOpen(false);
+          setSelectedPatient(null);
+        }}
+        title="Registrasi Pasien"
+      >
+        <PatientRegistrationForm
+          onPatientSelected={handlePatientRegistration}
+          onNewPatientCreated={handleNewPatientCreated}
+        />
+      </CrudModal>
+
+      <CrudModal
         isOpen={isCreateModalOpen}
-        onClose={() => setIsCreateModalOpen(false)}
+        onClose={() => {
+          setIsCreateModalOpen(false);
+          setSelectedPatient(null);
+        }}
         title="Buat Appointment Baru"
       >
         <AppointmentForm
           onSubmit={handleCreate}
           department="Poli Umum"
           isLoading={isSubmitting}
+          preselectedPatient={selectedPatient}
         />
       </CrudModal>
 
@@ -343,6 +418,25 @@ const PoliUmum = () => {
           department="Poli Umum"
           isLoading={isSubmitting}
         />
+      </CrudModal>
+
+      <CrudModal
+        isOpen={isSOAPModalOpen}
+        onClose={() => {
+          setIsSOAPModalOpen(false);
+          setSelectedAppointment(null);
+        }}
+        title={`Pemeriksaan ${soapExaminationType === 'doctor' ? 'Dokter' : 'Perawat'} - SOAP`}
+      >
+        {selectedAppointment && (
+          <SOAPForm
+            onSubmit={handleSOAPSubmit}
+            appointmentId={selectedAppointment.id}
+            patientId={selectedAppointment.patient_id}
+            examinationType={soapExaminationType}
+            isLoading={isSubmitting}
+          />
+        )}
       </CrudModal>
 
       <DeleteModal
