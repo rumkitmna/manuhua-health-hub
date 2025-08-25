@@ -319,6 +319,60 @@ export type Database = {
           },
         ]
       }
+      medical_examinations: {
+        Row: {
+          appointment_id: string
+          assessment: string | null
+          created_at: string
+          doctor_id: string | null
+          examination_date: string
+          examination_type: string
+          id: string
+          nurse_id: string | null
+          objective: string | null
+          patient_id: string
+          plan: string | null
+          status: string
+          subjective: string | null
+          updated_at: string
+          vital_signs: Json | null
+        }
+        Insert: {
+          appointment_id: string
+          assessment?: string | null
+          created_at?: string
+          doctor_id?: string | null
+          examination_date?: string
+          examination_type?: string
+          id?: string
+          nurse_id?: string | null
+          objective?: string | null
+          patient_id: string
+          plan?: string | null
+          status?: string
+          subjective?: string | null
+          updated_at?: string
+          vital_signs?: Json | null
+        }
+        Update: {
+          appointment_id?: string
+          assessment?: string | null
+          created_at?: string
+          doctor_id?: string | null
+          examination_date?: string
+          examination_type?: string
+          id?: string
+          nurse_id?: string | null
+          objective?: string | null
+          patient_id?: string
+          plan?: string | null
+          status?: string
+          subjective?: string | null
+          updated_at?: string
+          vital_signs?: Json | null
+        }
+        Relationships: []
+      }
       medical_records: {
         Row: {
           appointment_id: string | null
@@ -389,6 +443,33 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      nurses: {
+        Row: {
+          active: boolean | null
+          created_at: string
+          id: string
+          name: string
+          phone: string | null
+          specialization: string
+        }
+        Insert: {
+          active?: boolean | null
+          created_at?: string
+          id?: string
+          name: string
+          phone?: string | null
+          specialization?: string
+        }
+        Update: {
+          active?: boolean | null
+          created_at?: string
+          id?: string
+          name?: string
+          phone?: string | null
+          specialization?: string
+        }
+        Relationships: []
       }
       patients: {
         Row: {

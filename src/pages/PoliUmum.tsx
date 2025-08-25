@@ -153,11 +153,11 @@ const PoliUmum = () => {
           </div>
           <Button variant="outline" onClick={() => setIsCreateModalOpen(true)}>
             <UserPlus className="w-4 h-4 mr-2" />
-            Registrasi
+            Appointment
           </Button>
           <Button className="bg-gradient-medical hover:bg-primary-hover" onClick={() => setIsCreateModalOpen(true)}>
             <Plus className="w-4 h-4 mr-2" />
-            Pasien Baru
+            SOAP
           </Button>
         </div>
       </div>
@@ -294,6 +294,10 @@ const PoliUmum = () => {
                         }}>
                           <Edit className="w-3 h-3 mr-1" />
                           Edit
+                        </Button>
+                        <Button variant="outline" size="sm">
+                          <FileText className="w-3 h-3 mr-1" />
+                          SOAP
                         </Button>
                         <Button variant="outline" size="sm" onClick={() => {
                           setSelectedAppointment(patient);

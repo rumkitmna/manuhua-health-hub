@@ -27,7 +27,7 @@ export const AppointmentForm = ({ onSubmit, initialData, isLoading, department }
     doctor_id: initialData?.doctor_id || '',
     department: initialData?.department || department || 'Poli Umum',
     appointment_date: initialData?.appointment_date ? new Date(initialData.appointment_date) : new Date(),
-    appointment_time: initialData?.appointment_time || '',
+    appointment_time: initialData?.appointment_time || '08:00',
     complaint: initialData?.complaint || '',
     status: initialData?.status || 'scheduled',
     queue_number: initialData?.queue_number || '',
